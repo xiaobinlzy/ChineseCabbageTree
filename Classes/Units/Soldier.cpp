@@ -87,13 +87,13 @@ void Counsellor::makeDamage()
                 unit->markDamage(mDamage);
             }
         }
-        CCParticleFire *particle = CCParticleFire::create();
+        CCParticleSystemQuad *particle = CCParticleFire::create();
         particle->setEmitterMode(kCCParticleModeGravity);
-        particle->setLife(1);
-        particle->setDuration(1);
+        particle->setLife(1.25f);
+        particle->setDuration(3.0f);
         particle->setAutoRemoveOnFinish(true);
         particle->setPosition(position);
-        position.y -= 20;
+        position.y -= 35;
         if (mTeam == UnitTeamRed) {
             particle->setStartColor(ccc4f(0.24f, 0.75f, 0.88f, 1.0f));
         }
