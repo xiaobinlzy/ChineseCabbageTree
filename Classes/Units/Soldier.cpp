@@ -24,7 +24,7 @@ bool LightFootman::init(const char *resource, UnitTeam team, int level)
     mHealthPoint = 100;
     mBaseDamagePoint = 18;
     mRandomDamagePoint = 4;
-    mMoveSpeed = 40;
+    mMoveSpeed = 60;
     mAttackRange = 35;
     mHurtRecoverInterval = 0.4;
     mAttackInterval = 1.5;
@@ -54,7 +54,7 @@ bool Counsellor::init(const char *resource, UnitTeam team, int level)
     mHealthPoint = 60;
     mBaseDamagePoint = 35;
     mRandomDamagePoint = 10;
-    mMoveSpeed = 40;
+    mMoveSpeed = 60;
     mAttackRange = 150;
     mHurtRecoverInterval = 0.8;
     mAttackInterval = 3;

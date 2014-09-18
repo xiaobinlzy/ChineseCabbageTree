@@ -11,8 +11,6 @@
 
 #include <cocos2d.h>
 #include "UnitDelegate.h"
-#include <particle_nodes/CCParticleSystem.h>
-#include <particle_nodes/firePngData.h>
 
 
 
@@ -113,7 +111,7 @@ public:
     CC_SYNTHESIZE(CCPoint, mObsoleteDirection, ObsoleteDirection);
     
 #pragma mark - 单位属性
-    CC_SYNTHESIZE_READONLY(CCString*, mName, Name);
+    CC_SYNTHESIZE(String *, mUnitName, UnitName);
     // 生命值
     CC_SYNTHESIZE(int, mHealthPoint, HealthPoint);
     

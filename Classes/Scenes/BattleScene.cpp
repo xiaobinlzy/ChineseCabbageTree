@@ -11,7 +11,7 @@
 #include "../AI/DefaultAI.h"
 #include "../Units/Soldier.h"
 #include "../Units/General.h"
-
+#include "base/firePngData.h"
 static CCTexture2D* getDefaultTexture()
 {
     CCTexture2D* pTexture = NULL;
@@ -19,13 +19,12 @@ static CCTexture2D* getDefaultTexture()
     do
     {
         bool bRet = false;
-        const char* key = "__firePngData";
+        const char* key = "/__firePngData";
         pTexture = CCTextureCache::sharedTextureCache()->textureForKey(key);
         CC_BREAK_IF(pTexture != NULL);
-        
         pImage = new CCImage();
         CC_BREAK_IF(NULL == pImage);
-        bRet = pImage->initWithImageData((void*)__firePngData, sizeof(__firePngData), CCImage::kFmtPng);
+        bRet = pImage->initWithImageData(__firePngData, sizeof(__firePngData));
         CC_BREAK_IF(!bRet);
         
         pTexture = CCTextureCache::sharedTextureCache()->addUIImage(pImage, key);
@@ -41,17 +40,14 @@ BattleScene::~BattleScene() {
     
 }
 
-void BattleScene::keyBackClicked() {
-    
-	CCDirector::sharedDirector()->end();
-    
-	exit(0);
-    
+void BattleScene::onKeyReleased(EventKeyboard::KeyCode keyCode, cocos2d::Event *event)
+{
+    if (keyCode == EventKeyboard::KeyCode::KEY_BACK) {
+        CCDirector::sharedDirector()->end();
+        
+        exit(0);
+    }
 }
-void BattleScene::keyMenuClicked() {
-    
-}
-
 
 bool BattleScene::init() {
 	if (!CCLayer::init()) {
@@ -59,8 +55,8 @@ bool BattleScene::init() {
 	}
 	setKeypadEnabled(true);
 	CCSpriteFrameCache::sharedSpriteFrameCache()->removeSpriteFrames();
-	CCSpriteFrameCache::sharedSpriteFrameCache()->addSpriteFramesWithFile("units/unit.plist");
-	mBatchNode = CCSpriteBatchNode::create("units/unit.png");
+	CCSpriteFrameCache::sharedSpriteFrameCache()->addSpriteFramesWithFile("unit.plist");
+	mBatchNode = CCSpriteBatchNode::create("unit.png");
 	this->addChild(mBatchNode);
     
     mParticleBatchNode = CCParticleBatchNode::createWithTexture(getDefaultTexture());
@@ -143,7 +139,7 @@ CCArray* BattleScene::getUnits()
     return mUnits;
 }
 
-bool BattleScene::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent) {
+bool BattleScene::onTouchBegan(CCTouch *pTouch, CCEvent *pEvent) {
 	CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(1, BattleScene::scene()));
 	return true;
 }

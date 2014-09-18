@@ -32,9 +32,10 @@ public:
     CREATE_FUNC(BattleScene);
     
 #pragma mark - touch & click event
-    virtual void keyBackClicked();
-    virtual void keyMenuClicked();
-    virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
+    virtual void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
+//    virtual void keyBackClicked();
+//    virtual void keyMenuClicked();
+    virtual bool onTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
     
 #pragma mark - unit delegate
     virtual CCArray* getUnits();

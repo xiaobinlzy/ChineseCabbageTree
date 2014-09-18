@@ -20,7 +20,7 @@ void Unit::cleanup()
     CC_SAFE_RELEASE(mSpellAction);
     CC_SAFE_RELEASE(mHurtAction);
     CC_SAFE_RELEASE(mDieAction);
-    CC_SAFE_RELEASE(mName);
+    CC_SAFE_RELEASE(mUnitName);
     CC_SAFE_RELEASE(mDefendAction);
     CCSprite::cleanup();
 }
@@ -41,8 +41,8 @@ bool Unit::init(const char* name, UnitTeam team, int level)
     mState = UnitStateNone;
     mTeam = team;
     
-    mName = CCString::create(name);
-    mName->retain();
+    mUnitName = CCString::create(name);
+    mUnitName->retain();
     this->setDisplayFrame(CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_stand.png", name)->getCString()));
     
     return true;
@@ -69,68 +69,75 @@ void Unit::makeActions()
 void Unit::initAttackAction()
 {
     // 攻击动画
-    CCArray *attackFrames = CCArray::createWithCapacity(4);
+    Vector<SpriteFrame *> *attackFrames = new Vector<SpriteFrame *>(4);
     for (int i = 0; i < 4; i++) {
-        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_attack_%02d.png", mName->getCString(), i)->getCString());
-        attackFrames->addObject(frame);
+        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_attack_%02d.png", mUnitName->getCString(), i)->getCString());
+//        attackFrames->addObject(frame);
+        attackFrames->pushBack(frame);
     }
-    CCAnimate *attackAnimate = CCAnimate::create(CCAnimation::createWithSpriteFrames(attackFrames, 0.1));
+    CCAnimate *attackAnimate = CCAnimate::create(CCAnimation::createWithSpriteFrames(*attackFrames, 0.1));
     CCDelayTime *damageDelay = CCDelayTime::create(mAttackPrefixInterval);
     CCCallFunc *attackMakeDamageCall = CCCallFunc::create(this, callfunc_selector(Unit::makeDamage));
     CCSpawn *attackSpawn = CCSpawn::create(attackAnimate, CCSequence::create(damageDelay, attackMakeDamageCall, NULL), NULL);
     CCActionInterval *attackDelay = CCDelayTime::create(mAttackInterval - MAX(0.4, mAttackPrefixInterval));
     CCCallFunc *attackCall = CCCallFunc::create(this, callfunc_selector(Unit::idle));
     this->setAttackAction(CCSpeed::create(CCSequence::create(attackSpawn, attackDelay, attackCall, NULL), 1.0f));
+    delete attackFrames;
 }
 
 void Unit::initMoveAction()
 {
     // 移动动画
-    CCArray *moveFrames = CCArray::createWithCapacity(2);
+    Vector<SpriteFrame *> *moveFrames = new Vector<SpriteFrame *>(2);
     for (int i = 0; i < 2; i++) {
-        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_move_%02d.png", mName->getCString(), i)->getCString());
-        moveFrames->addObject(frame);
+        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_move_%02d.png", mUnitName->getCString(), i)->getCString());
+        moveFrames->pushBack(frame);
     }
-    this->setMoveAction(CCSpeed::create(CCRepeatForever::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(moveFrames, 0.2f))), 1.0f));
+    this->setMoveAction(CCSpeed::create(CCRepeatForever::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(*moveFrames, 0.2f))), 1.0f));
+    delete moveFrames;
 }
 
 void Unit::initIdleAction()
 {
     // 待命动画
-    CCArray *idleFrames = CCArray::createWithCapacity(1);
-    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_stand.png", mName->getCString())->getCString());
-    idleFrames->addObject(frame);
-    this->setIdleAction(CCSpeed::create(CCRepeatForever::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(idleFrames, 0.8f))), 1.0f));
+    Vector<SpriteFrame *> *idleFrames = new Vector<SpriteFrame *>(1);
+    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_stand.png", mUnitName->getCString())->getCString());
+    idleFrames->pushBack(frame);
+    this->setIdleAction(CCSpeed::create(CCRepeatForever::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(*idleFrames, 0.8f))), 1.0f));
+    delete idleFrames;
 }
 
 void Unit::initDieAction()
 {
     // 死亡动画
-    CCArray *dieFrames = CCArray::createWithCapacity(2);
+    Vector<SpriteFrame *> *dieFrames = new Vector<SpriteFrame *>(2);
     for (int i = 0; i < 2; i++) {
-        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_die_%02d.png", mName->getCString(), i)->getCString());
-        dieFrames->addObject(frame);
+        CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_die_%02d.png", mUnitName->getCString(), i)->getCString());
+        dieFrames->pushBack(frame);
     }
-    CCRepeat *dieAnimate = CCRepeat::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(dieFrames, 0.4f)), -1);
+    CCRepeat *dieAnimate = CCRepeat::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(*dieFrames, 0.4f)), -1);
     this->setDieAction(CCSpeed::create(CCSpawn::create(dieAnimate, CCSequence::create(CCDelayTime::create(2.4), CCBlink::create(2, 8), CCHide::create(), NULL), NULL), 1.0f));
+    delete dieFrames;
 }
 
 void Unit::initHurtAction()
 {
     // 受伤动画
-    CCArray *hurtFrames = CCArray::createWithCapacity(1);
-    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_hurt.png", mName->getCString())->getCString());
-    hurtFrames->addObject(frame);
-    this->setHurtAction(CCSpeed::create(CCSequence::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(hurtFrames, mHurtRecoverInterval)), CCCallFunc::create(this, callfunc_selector(Unit::idle)), NULL), 1.0f));
+    Vector<SpriteFrame *> *hurtFrames = new Vector<SpriteFrame *>(1);
+    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_hurt.png", mUnitName->getCString())->getCString());
+    hurtFrames->pushBack(frame);
+    this->setHurtAction(CCSpeed::create(CCSequence::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(*hurtFrames, mHurtRecoverInterval)), CCCallFunc::create(this, callfunc_selector(Unit::idle)), NULL), 1.0f));
+    delete hurtFrames;
 }
 
 void Unit::initDefendAction()
 {
     // 防御动画
-    CCArray *defendFrames = CCArray::createWithCapacity(1);
-    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_defend.png", mName->getCString())->getCString());
-    defendFrames->addObject(frame);
-    this->setDefendAction(CCSpeed::create(CCSequence::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(defendFrames, mHurtRecoverInterval)), CCCallFunc::create(this, callfunc_selector(Unit::idle)), NULL), 1.0f));
+    Vector<SpriteFrame *> *defendFrames = new Vector<SpriteFrame *>(1);
+    CCSpriteFrame *frame = CCSpriteFrameCache::sharedSpriteFrameCache()->spriteFrameByName(CCString::createWithFormat("%s_defend.png", mUnitName->getCString())->getCString());
+    defendFrames->pushBack(frame);
+    this->setDefendAction(CCSpeed::create(CCSequence::create(CCAnimate::create(CCAnimation::createWithSpriteFrames(*defendFrames, mHurtRecoverInterval)), CCCallFunc::create(this, callfunc_selector(Unit::idle)), NULL), 1.0f));
+    delete defendFrames;
 }
 
 #pragma mark - 动作

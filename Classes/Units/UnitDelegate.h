@@ -10,7 +10,6 @@
 #define ChineseCabbageTree_UnitDelegate_h
 
 #include <cocos2d.h>
-#include <particle_nodes/CCParticleSystem.h>
 
 USING_NS_CC;
 
