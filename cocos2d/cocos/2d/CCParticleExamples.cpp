@@ -26,8 +26,8 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "2d/CCParticleExamples.h"
-#include "platform/CCImage.h"
 #include "base/CCDirector.h"
+#include "platform/CCImage.h"
 #include "base/firePngData.h"
 #include "renderer/CCTextureCache.h"
 
@@ -40,23 +40,23 @@ static Texture2D* getDefaultTexture()
 {
     Texture2D* texture = nullptr;
     Image* image = nullptr;
-    do 
+    do
     {
         bool ret = false;
         const std::string key = "/__firePngData";
         texture = Director::getInstance()->getTextureCache()->getTextureForKey(key);
         CC_BREAK_IF(texture != nullptr);
-
+        
         image = new Image();
         CC_BREAK_IF(nullptr == image);
         ret = image->initWithImageData(__firePngData, sizeof(__firePngData));
         CC_BREAK_IF(!ret);
-
+        
         texture = Director::getInstance()->getTextureCache()->addImage(image, key);
     } while (0);
-
+    
     CC_SAFE_RELEASE(image);
-
+    
     return texture;
 }
 

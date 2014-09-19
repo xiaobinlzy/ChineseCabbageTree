@@ -11,29 +11,68 @@
 #include "../AI/DefaultAI.h"
 #include "../Units/Soldier.h"
 #include "../Units/General.h"
-#include "base/firePngData.h"
-static CCTexture2D* getDefaultTexture()
+#include "../Particle/ParticleStar.h"
+#include "../base/FirePngData.h"
+
+static Texture2D* getStarTexture()
 {
-    CCTexture2D* pTexture = NULL;
-    CCImage* pImage = NULL;
+    Texture2D* texture = nullptr;
+    Image* image = nullptr;
+    unsigned char *buffer = nullptr;
+    unsigned char *deflated = nullptr;
+    do {
+        const std::string key = "/__starPngData";
+        texture = Director::getInstance()->getTextureCache()->getTextureForKey(key);
+        CC_BREAK_IF(texture != nullptr);
+        std::string textureData = __starPngData;
+        CCASSERT(!textureData.empty(), "");
+        
+        auto dataLen = textureData.size();
+            // if it fails, try to get it from the base64-gzipped data
+            int decodeLen = base64Decode((unsigned char*)textureData.c_str(), (unsigned int)dataLen, &buffer);
+            CCASSERT( buffer != nullptr, "CCParticleSystem: error decoding textureImageData");
+            CC_BREAK_IF(!buffer);
+            
+            ssize_t deflatedLen = ZipUtils::inflateMemory(buffer, decodeLen, &deflated);
+            CCASSERT( deflated != nullptr, "CCParticleSystem: error ungzipping textureImageData");
+            CC_BREAK_IF(!deflated);
+            
+            // For android, we should retain it in VolatileTexture::addImage which invoked in Director::getInstance()->getTextureCache()->addUIImage()
+            image = new Image();
+            bool isOK = image->initWithImageData(deflated, deflatedLen);
+            CCASSERT(isOK, "CCParticleSystem: error init image with Data");
+            CC_BREAK_IF(!isOK);
+            
+            texture = Director::getInstance()->getTextureCache()->addImage(image, key);
+    } while (0);
+    CC_SAFE_RELEASE(image);
+    return texture;
+}
+
+static Texture2D* getDefaultTexture()
+{
+    Texture2D* texture = nullptr;
+    Image* image = nullptr;
     do
     {
-        bool bRet = false;
-        const char* key = "/__firePngData";
-        pTexture = CCTextureCache::sharedTextureCache()->textureForKey(key);
-        CC_BREAK_IF(pTexture != NULL);
-        pImage = new CCImage();
-        CC_BREAK_IF(NULL == pImage);
-        bRet = pImage->initWithImageData(__firePngData, sizeof(__firePngData));
-        CC_BREAK_IF(!bRet);
+        bool ret = false;
+        const std::string key = "/__firePngData";
+        texture = Director::getInstance()->getTextureCache()->getTextureForKey(key);
+        CC_BREAK_IF(texture != nullptr);
         
-        pTexture = CCTextureCache::sharedTextureCache()->addUIImage(pImage, key);
+        image = new Image();
+        CC_BREAK_IF(nullptr == image);
+        ret = image->initWithImageData(__firePngData, sizeof(__firePngData));
+        CC_BREAK_IF(!ret);
+        
+        texture = Director::getInstance()->getTextureCache()->addImage(image, key);
     } while (0);
     
-    CC_SAFE_RELEASE(pImage);
+    CC_SAFE_RELEASE(image);
     
-    return pTexture;
+    return texture;
 }
+
 
 BattleScene::~BattleScene() {
 	CC_SAFE_RELEASE(mUnits);
@@ -59,7 +98,7 @@ bool BattleScene::init() {
 	mBatchNode = CCSpriteBatchNode::create("unit.png");
 	this->addChild(mBatchNode);
     
-    mParticleBatchNode = CCParticleBatchNode::createWithTexture(getDefaultTexture());
+    mParticleBatchNode = CCParticleBatchNode::createWithTexture(getStarTexture());
     this->addChild(mParticleBatchNode, 1);
     
 	mUnits = CCArray::create();

@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "BattleScene.h"
+#include "Scenes/BattleScene.h"
 
 USING_NS_CC;
 
@@ -22,7 +22,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     glview->setDesignResolutionSize(480, 320, ResolutionPolicy::EXACT_FIT);
 
     // turn on display FPS
-    director->setDisplayStats(true);
+    director->setDisplayStats(false);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);

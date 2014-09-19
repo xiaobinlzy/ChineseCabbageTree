@@ -8,6 +8,7 @@
 
 #include "Soldier.h"
 #include "../AI/AI.h"
+#include "../Particle/ParticleStar.h"
 
 #pragma mark - 轻步兵
 LightFootman::~LightFootman()
@@ -87,16 +88,14 @@ void Counsellor::makeDamage()
                 unit->markDamage(mDamage);
             }
         }
-        CCParticleSystemQuad *particle = CCParticleFire::create();
-        particle->setEmitterMode(kCCParticleModeGravity);
-        particle->setLife(1.25f);
-        particle->setDuration(3.0f);
+        CCParticleSystemQuad *particle = ParticleStar::create();
+//        particle->setEmitterMode(CCParticleSystemQuad::Mode::GRAVITY);
         particle->setAutoRemoveOnFinish(true);
+        particle->setLife(1.0f);
+        particle->setLifeVar(0.5f);
+        particle->setDuration(3.0f);
         particle->setPosition(position);
         position.y -= 35;
-        if (mTeam == UnitTeamRed) {
-            particle->setStartColor(ccc4f(0.24f, 0.75f, 0.88f, 1.0f));
-        }
         mDelegate->getParticleBatchNode()->addChild(particle);
     }
     
