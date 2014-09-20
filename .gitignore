@@ -23,3 +23,5 @@
 *.out
 *.app
 proj.*/
+cocos2d/
+CMakeLists.txt
